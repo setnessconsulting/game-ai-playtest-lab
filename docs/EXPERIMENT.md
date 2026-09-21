@@ -58,3 +58,13 @@ Framework wrappers may add operational instructions, but they may not change the
 Retained findings must be grounded in a specific run artifact and conform to `schemas/finding.schema.json`. Generic advice without observed evidence is excluded.
 
 Large raw videos/screenshots/traces remain under gitignored run directories. Durable Markdown/JSON summaries and small uniquely useful evidence may be committed.
+
+## Local acceptance command
+
+Once the frozen game is running and the authenticated Codex CLI is available on the same machine, run:
+
+```bash
+python -m playtest_lab smoke --require-runner codex --check-game
+```
+
+This checks the frozen contract, the sample normalized finding, Codex CLI presence, and a real HTTP response from the configured Number Line Jumper URL. OpenCode availability can be checked independently with `--require-runner opencode`; it is an alternate path and is not required to make Codex the default runner.
