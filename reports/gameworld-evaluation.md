@@ -74,6 +74,13 @@ Codex-led and no four-persona OpenCode campaign was requested. The result
 demonstrates the alternate review path; it does not make OpenCode a native
 GameWorld provider.
 
+At follow-up, the user-supplied alternate API key was loaded only in memory
+and used against the OpenCode Go Responses endpoint with `gpt-5.6-luna` for
+the same screenshot. The request returned HTTP `200` and valid JSON; that
+review found no additional candidate finding from the single frame. This
+confirms the supplied key is usable for the alternate review path without
+changing the native GameWorld-provider blocker.
+
 ## GAME-310 acceptance state
 
 The browser integration, upstream baseline, four persona captures, evidence

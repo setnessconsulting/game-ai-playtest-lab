@@ -60,9 +60,9 @@ This limitation is explicit in each manifest and does not count as proof that
 GameWorld's native provider path is available.
 
 The pinned native GameWorld provider path was not run: no supported provider
-API key or local model endpoint was available on the host. The configured
-OpenCode Go credential was verified through one bounded alternate review of an
-existing adversarial screenshot using
-`opencode-go/deepseek-v4-flash-vision-exp`. OpenCode is therefore available as
-an alternate lab reviewer, but it is not a native GameWorld provider and was
-not used for a second four-persona campaign.
+API key or local model endpoint was available on the host. OpenCode Go access
+was verified through bounded alternate reviews of an existing adversarial
+screenshot, including a follow-up request using the supplied alternate API
+key with `gpt-5.6-luna`. OpenCode is therefore available as an alternate lab
+reviewer, but it is not a native GameWorld provider and was not used for a
+second four-persona campaign.
