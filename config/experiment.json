@@ -1,0 +1,50 @@
+{
+  "experiment": {
+    "id": "game-308-number-line-jumper-mvp",
+    "jira_epic": "GAME-308",
+    "purpose": "Compare GameWorld and GameGen-Verifier on one frozen Number Line Jumper revision using a common evidence contract.",
+    "frozen_at": "2026-09-20",
+    "game": {
+      "id": "number-line-jumper",
+      "name": "Number Line Jumper",
+      "repository": "setnessconsulting/game-number-line-jumper",
+      "revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+      "runtime": {
+        "node": "24.x",
+        "install": "npm ci",
+        "dev": "npm run dev -- --host 127.0.0.1",
+        "default_url": "http://127.0.0.1:5173/"
+      }
+    },
+    "frameworks": {
+      "gameworld": {
+        "repository": "gameworld-project/GameWorld",
+        "revision": "3c26bdab436800fd61ef40543b64ca40d12c7e4a",
+        "role": "exploratory gameplay, behavioral discovery, and replay evidence"
+      },
+      "gamegen-verifier": {
+        "repository": "NetX-lab/GameGen-Verifier",
+        "revision": "2604b6b7330ca93c2e9fcb1036daf8cdf660aade",
+        "role": "bounded state-grounded verification and before/after evidence"
+      }
+    },
+    "personas": [
+      "first-time",
+      "normal",
+      "expert",
+      "adversarial"
+    ],
+    "runners": {
+      "codex": {
+        "default": true,
+        "executable": "codex",
+        "model_policy": "Use the owner's authenticated Codex configuration (Luna Max); do not hard-code a model identifier in this repository."
+      },
+      "opencode": {
+        "default": false,
+        "executable": "opencode",
+        "model_policy": "Select an available model at runtime (for example Muse Spark or DeepSeek); no model is hard-coded."
+      }
+    }
+  }
+}
