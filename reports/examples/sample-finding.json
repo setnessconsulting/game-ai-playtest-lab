@@ -1,0 +1,23 @@
+{
+  "finding_id": "SAMPLE-001",
+  "title": "Example evidence-backed discoverability finding",
+  "framework": "gameworld",
+  "persona": "first-time",
+  "category": "discoverability",
+  "observed_behavior": "The example player attempts an unrelated control before discovering the primary interaction.",
+  "evidence": {
+    "artifact_ref": "runs/example/replay.html#t=12s",
+    "summary": "At approximately 12 seconds, the player hesitates and tries a non-primary control before making the first valid placement."
+  },
+  "severity": "medium",
+  "confidence": "medium",
+  "recommended_improvement": "Consider a minimal first-turn affordance that makes the primary interaction visually explicit.",
+  "expected_benefit": "Reduce time-to-first-valid-action for new players without adding a persistent tutorial.",
+  "verification_approach": "Repeat a first-time-player run and compare time/actions before the first valid placement.",
+  "game_revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+  "run_id": "example-only-not-a-real-playtest",
+  "metadata": {
+    "sample": true,
+    "note": "This file validates the report contract and is not evidence about the real game."
+  }
+}

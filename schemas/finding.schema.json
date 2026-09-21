@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/setnessconsulting/game-ai-playtest-lab/schemas/finding.schema.json",
+  "title": "AI playtest normalized finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "finding_id",
+    "title",
+    "framework",
+    "persona",
+    "category",
+    "observed_behavior",
+    "evidence",
+    "severity",
+    "confidence",
+    "recommended_improvement",
+    "expected_benefit",
+    "verification_approach",
+    "game_revision",
+    "run_id"
+  ],
+  "properties": {
+    "finding_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "framework": {"enum": ["gameworld", "gamegen-verifier"]},
+    "persona": {"enum": ["first-time", "normal", "expert", "adversarial"]},
+    "category": {"type": "string", "minLength": 1},
+    "observed_behavior": {"type": "string", "minLength": 1},
+    "evidence": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["artifact_ref", "summary"],
+      "properties": {
+        "artifact_ref": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1}
+      }
+    },
+    "severity": {"enum": ["critical", "high", "medium", "low"]},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "recommended_improvement": {"type": "string", "minLength": 1},
+    "expected_benefit": {"type": "string", "minLength": 1},
+    "verification_approach": {"type": "string", "minLength": 1},
+    "game_revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "run_id": {"type": "string", "minLength": 1},
+    "metadata": {"type": "object", "additionalProperties": true}
+  }
+}

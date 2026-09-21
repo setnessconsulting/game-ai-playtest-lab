@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Secrets / local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Raw experiment artifacts (durable normalized reports may be committed under reports/)
+runs/
+results/
+artifacts/
+*.mp4
+*.webm
+*.trace.zip
+playwright-report/
+test-results/
+
+# Framework working copies / caches
+.vendor/
+.frameworks/
+.cache/
+
+# Node / browser dependencies when framework workspaces are cloned locally
+node_modules/
+.lighthouseci/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,9 @@
+[project]
+name = "game-ai-playtest-lab"
+version = "0.1.0"
+description = "Minimal experiment harness for comparing AI game-playtesting workflows."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+playtest-lab = "playtest_lab.cli:main"
