@@ -5,6 +5,9 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 FRAMEWORKS = ("gameworld", "gamegen-verifier")
 PERSONAS = ("first-time", "normal", "expert", "adversarial")
@@ -140,6 +143,39 @@ class RunPlan:
             "persona_prompt": self.persona_prompt,
         }
 
+
+
+def check_game_reachable(
+    game_url: str | None = None,
+    timeout: float = 5.0,
+    root: Path | None = None,
+) -> tuple[str, int]:
+    """Verify that the configured game URL responds over HTTP(S)."""
+    exp = load_experiment(root)
+    resolved_url = game_url or exp["game"]["runtime"]["default_url"]
+    resolved_url = _nonempty(resolved_url, "game_url")
+    parsed = urlparse(resolved_url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ContractError("game_url must be an absolute http(s) URL")
+    if timeout <= 0:
+        raise ContractError("timeout must be greater than zero")
+
+    request = Request(
+        resolved_url,
+        headers={"User-Agent": "game-ai-playtest-lab/0.1"},
+        method="GET",
+    )
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            status = int(getattr(response, "status", response.getcode()))
+    except HTTPError as exc:
+        raise ContractError(f"game URL returned HTTP {exc.code}: {resolved_url}") from exc
+    except (URLError, OSError) as exc:
+        raise ContractError(f"game URL is not reachable: {resolved_url} ({exc})") from exc
+
+    if not 200 <= status < 400:
+        raise ContractError(f"game URL returned unexpected HTTP {status}: {resolved_url}")
+    return resolved_url, status
 
 def build_plan(
     framework: str,
