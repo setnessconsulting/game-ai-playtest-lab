@@ -59,9 +59,20 @@ integration limitation, not a claim of native GameWorld agent parity.
 
 GameWorld's native provider clients were not run: the host had no supported
 provider API key and no local vLLM-compatible endpoint. The available
-OpenCode CLI reported version `1.18.31`; one review was attempted against the
-adversarial screenshot, but it produced no response within the bounded
-feasibility check and was terminated. No OpenCode campaign was run.
+OpenCode CLI reported version `1.18.31`, and its protected credential store
+provided a working OpenCode Go credential without exposing the key. One
+bounded alternate review completed successfully against the existing
+adversarial screenshot using
+`opencode-go/deepseek-v4-flash-vision-exp`.
+
+OpenCode returned a concrete candidate finding from
+`gw-adversarial-20260921-final/screenshots/04-duplicate_land.png`: the
+feedback panel awarded `+2 points` and used encouraging copy for an estimate
+that was `33% away (327 units)`. This was retained as alternate-review
+evidence, not as a second normalized finding, because the GAME-310 ledger is
+Codex-led and no four-persona OpenCode campaign was requested. The result
+demonstrates the alternate review path; it does not make OpenCode a native
+GameWorld provider.
 
 ## GAME-310 acceptance state
 
