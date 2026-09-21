@@ -12,6 +12,7 @@ from .core import (
     PERSONAS,
     RUNNERS,
     build_plan,
+    check_game_reachable,
     load_experiment,
     repo_root,
     validate_finding_file,
@@ -57,6 +58,12 @@ def cmd_validate_finding(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_check_game(args: argparse.Namespace) -> int:
+    url, status = check_game_reachable(args.game_url, timeout=args.timeout)
+    print(f"game: reachable ({status}) {url}")
+    return 0
+
+
 def cmd_smoke(args: argparse.Namespace) -> int:
     root = repo_root()
     exp = load_experiment(root)
@@ -72,6 +79,10 @@ def cmd_smoke(args: argparse.Namespace) -> int:
     for runner in RUNNERS:
         path = statuses[runner]
         print(f"runner {runner}: {'found at ' + path if path else 'not found on PATH'}")
+
+    if args.check_game:
+        url, status = check_game_reachable(args.game_url, timeout=args.timeout)
+        print(f"game: reachable ({status}) {url}")
 
     if args.require_runner and not statuses[args.require_runner]:
         print(f"required runner unavailable: {args.require_runner}", file=sys.stderr)
@@ -102,8 +113,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_finding.add_argument("path")
     p_finding.set_defaults(func=cmd_validate_finding)
 
+    p_game = sub.add_parser("check-game", help="Verify that the configured Number Line Jumper URL is reachable.")
+    p_game.add_argument("--game-url", help="Override the configured game URL for this check.")
+    p_game.add_argument("--timeout", type=float, default=5.0)
+    p_game.set_defaults(func=cmd_check_game)
+
     p_smoke = sub.add_parser("smoke", help="Validate contract and report local runner CLI availability.")
     p_smoke.add_argument("--require-runner", choices=RUNNERS)
+    p_smoke.add_argument("--check-game", action="store_true", help="Also require the game URL to respond.")
+    p_smoke.add_argument("--game-url", help="Override the configured game URL when --check-game is used.")
+    p_smoke.add_argument("--timeout", type=float, default=5.0)
     p_smoke.set_defaults(func=cmd_smoke)
 
     return parser
