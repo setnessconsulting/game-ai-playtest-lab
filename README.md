@@ -51,6 +51,18 @@ python -m playtest_lab smoke --require-runner codex
 python -m playtest_lab smoke --require-runner opencode
 ```
 
+After launching Number Line Jumper locally, verify the real browser target rather than relying on configuration alone:
+
+```bash
+python -m playtest_lab check-game
+```
+
+The GAME-309 local acceptance gate can be run as one command once Codex and the frozen game are available:
+
+```bash
+python -m playtest_lab smoke --require-runner codex --check-game
+```
+
 ## Create a normalized run plan
 
 The planner does **not** invoke a framework or model. It produces a deterministic run envelope that records the frozen game/framework revisions and chosen persona/runner.
