@@ -57,8 +57,13 @@ held the browser process open on this Windows host, so the captured action
 plans used the runner's bounded deterministic fallback sequences. That is an
 integration limitation, not a claim of native GameWorld agent parity.
 
-GameWorld's native provider clients were not run: the host had no supported
-provider API key and no local vLLM-compatible endpoint. The available
+GameWorld's native provider clients were not run to completion: the host had
+no usable supported provider account or local vLLM-compatible endpoint. A
+Gemini credential was available and was tested through the pinned
+`gemini_general` adapter with model `gemini-3-flash-preview`, but Google
+rejected the first request with HTTP `402 RESOURCE_EXHAUSTED` because the
+account's prepayment credits were depleted. No native gameplay run was
+counted from that attempt. The available
 OpenCode CLI reported version `1.18.31`, and its protected credential store
 provided a working OpenCode Go credential without exposing the key. One
 bounded alternate review completed successfully against the existing
@@ -88,8 +93,8 @@ ledger, and normalized finding contract are complete. GAME-310 is not marked
 Done because the acceptance criteria require the pinned GameWorld-supported
 agent path, and that path is owner/provider-gated on this host.
 
-Required next action: make one supported GameWorld provider available (a
-credentialed provider account or a supported local model endpoint), then rerun
-the four personas with the same frozen SHA and compare those native-agent
-artifacts against this baseline. Do not advance GAME-311 until GAME-310 is
-closed.
+Required next action: replenish the tested Gemini account's prepayment balance,
+provide another supported GameWorld provider account, or make a supported
+local model endpoint available. Then rerun the four personas with the same
+frozen SHA and compare those native-agent artifacts against this baseline. Do
+not advance GAME-311 until GAME-310 is closed.

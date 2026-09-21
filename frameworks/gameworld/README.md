@@ -59,9 +59,11 @@ runner's bounded fallback plans and independent Codex CLI screenshot reviews.
 This limitation is explicit in each manifest and does not count as proof that
 GameWorld's native provider path is available.
 
-The pinned native GameWorld provider path was not run: no supported provider
-API key or local model endpoint was available on the host. OpenCode Go access
-was verified through bounded alternate reviews of an existing adversarial
+The pinned native GameWorld provider path was not completed. The supplied
+Gemini credential initialized GameWorld's pinned `gemini_general` adapter, but
+the first `gemini-3-flash-preview` request was rejected with HTTP 402 because
+the account's prepayment credits were depleted. OpenCode Go access was also
+verified through bounded alternate reviews of an existing adversarial
 screenshot, including a follow-up request using the supplied alternate API
 key with `gpt-5.6-luna`. OpenCode is therefore available as an alternate lab
 reviewer, but it is not a native GameWorld provider and was not used for a
