@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import json
 import tempfile
+import threading
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from playtest_lab.core import (
     ContractError,
     build_plan,
+    check_game_reachable,
     load_experiment,
     repo_root,
     validate_finding,
@@ -83,6 +86,35 @@ class ExperimentContractTests(unittest.TestCase):
             path.write_text("[]", encoding="utf-8")
             with self.assertRaises(ContractError):
                 validate_finding_file(path)
+
+
+    def test_game_reachability_uses_real_http_response(self) -> None:
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html")
+                self.end_headers()
+                self.wfile.write(b"<html><title>Number Line Jumper</title></html>")
+
+            def log_message(self, format: str, *args: object) -> None:
+                return
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            url = f"http://127.0.0.1:{server.server_port}/"
+            checked_url, status = check_game_reachable(url, timeout=1.0)
+            self.assertEqual(checked_url, url)
+            self.assertEqual(status, 200)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+    def test_game_reachability_rejects_non_http_url(self) -> None:
+        with self.assertRaises(ContractError):
+            check_game_reachable("file:///tmp/index.html")
 
 
 if __name__ == "__main__":
