@@ -1,6 +1,8 @@
 # GAME-310 — GameWorld evaluation
 
-Status: partial evidence captured; blocked on the pinned native provider path.
+Status: OpenCode gameplay evidence captured; acceptance remains blocked pending
+the final determination that the lab-local provider adapter satisfies the
+pinned GameWorld supported-agent-path gate.
 
 ## Frozen inputs
 
@@ -31,7 +33,7 @@ object, and page score `0`.
 The evaluation therefore records a system-Chrome browser deviation in the
 local manifests; it does not patch or fork GameWorld.
 
-## Persona runs
+## Baseline Codex persona runs
 
 Each run used the same frozen URL, viewport, seed, and GameWorld action
 executor. The raw action ledgers and screenshots remain under the ignored
@@ -49,52 +51,68 @@ normal, and expert frames produced no concrete finding. The adversarial frame
 retained only GW-001; the review explicitly rejected generic claims about
 sound, timer, score, slider, and duplicate-action processing.
 
+## OpenCode/DeepSeek primary persona runs
+
+The user-directed provider campaign used the same frozen game, GameWorld
+revision, 1280×720 viewport, seed 42, and pinned `ActionExecutor`. The
+provider configuration was OpenCode Go Chat Completions with model
+`deepseek-v4.1-flash`, `reasoning_effort=max`, `tool_choice=auto`, and an
+8192-token request bound. The smoke run preceded the primary campaign.
+
+| Persona | Run | Actions / valid calls | Visible result | Codex review |
+| --- | --- | ---: | --- | --- |
+| Smoke / first-time | `gw-opencode-first-time-smoke` | 8/8 | 8 semantic actions executed; scroll, clicks, and keyboard input reached the frozen surface | Transport and action-contract smoke passed |
+| First-time | `gw-opencode-first-time-primary` | 20/20 | Remained in guided warm-up; target 20 and estimate near 10 remained visible; timed round was not started | Placement/control limitation; no retained game finding |
+| Normal | `gw-opencode-normal-primary` | 20/20 | Reached Trial 1 of 10 with score 0 and 53 seconds remaining; did not advance a trial | Incomplete controller outcome; no retained game finding |
+| Expert | `gw-opencode-expert-primary` | 20/20 | Reached round summary with score 10, one close landing, and 0.1% average error | Completed visible flow; no retained game finding |
+| Adversarial | `gw-opencode-adversarial-primary` | 20/20 | Reached a zero-play round summary showing 0 of 10 trials and 0 points | Incomplete controller outcome; no retained game finding |
+
+All five runs produced manifests, JSONL action ledgers, and screenshots under
+the ignored `runs/gameworld/` tree. Every primary event had a valid semantic
+function call and no provider error. The incomplete outcomes are recorded as
+gameplay-agent limitations, not game defects. The existing normalized finding
+`GW-001` remains the only retained finding; no new OpenCode screenshot was
+strong enough to add another finding.
+
 ## Controller and alternate-runtime evidence
 
-The host is logged into the Codex CLI, and independent Codex screenshot reviews
-completed for all four runs. The in-process runner's nested Codex invocation
-held the browser process open on this Windows host, so the captured action
-plans used the runner's bounded deterministic fallback sequences. That is an
-integration limitation, not a claim of native GameWorld agent parity.
+The original Codex-controlled four-persona baseline remains in the report for
+comparison. Independent Codex screenshot reviews also covered the OpenCode
+primary final frames. The reviews rejected claims about scoring, timing,
+accessibility, or game defects when the screenshot only demonstrated an
+incomplete controller outcome.
 
-GameWorld's native provider clients were not run to completion: the host had
-no usable supported provider account or local vLLM-compatible endpoint. A
-Gemini credential was available and was tested through the pinned
-`gemini_general` adapter with model `gemini-3-flash-preview`, but Google
-rejected the first request with HTTP `402 RESOURCE_EXHAUSTED` because the
-account's prepayment credits were depleted. No native gameplay run was
-counted from that attempt. The available
-OpenCode CLI reported version `1.18.31`, and its protected credential store
-provided a working OpenCode Go credential without exposing the key. One
-bounded alternate review completed successfully against the existing
-adversarial screenshot using
-`opencode-go/deepseek-v4-flash-vision-exp`.
+The OpenCode adapter uses the pinned GameWorld `GeneralAgent` semantic
+contract but is intentionally lab-local; it does not register a new upstream
+adapter in GameWorld's checkout. OpenCode Go returned valid Chat Completions
+function calls for all 88 provider requests: 8 smoke steps plus 80 primary
+steps. No request fell back to another provider. The manifests do not contain
+the API key or hidden reasoning text.
 
-OpenCode returned a concrete candidate finding from
-`gw-adversarial-20260921-final/screenshots/04-duplicate_land.png`: the
-feedback panel awarded `+2 points` and used encouraging copy for an estimate
-that was `33% away (327 units)`. This was retained as alternate-review
-evidence, not as a second normalized finding, because the GAME-310 ledger is
-Codex-led and no four-persona OpenCode campaign was requested. The result
-demonstrates the alternate review path; it does not make OpenCode a native
-GameWorld provider.
+The earlier pinned Gemini attempt remains a separate provider-gate result:
+`gemini_general` with `gemini-3-flash-preview` returned HTTP 402
+`RESOURCE_EXHAUSTED` because the account's prepayment credits were depleted.
+The earlier one-shot OpenCode alternate review of the Codex adversarial frame
+is also retained as historical evidence and is not mixed into the primary
+campaign findings.
 
-At follow-up, the user-supplied alternate API key was loaded only in memory
-and used against the OpenCode Go Responses endpoint with `gpt-5.6-luna` for
-the same screenshot. The request returned HTTP `200` and valid JSON; that
-review found no additional candidate finding from the single frame. This
-confirms the supplied key is usable for the alternate review path without
-changing the native GameWorld-provider blocker.
+Operationally, the new campaign required 88 bounded model requests and all
+five sessions completed without browser or provider failure. Exact monetary
+usage was not available in the local response artifacts, so this report does
+not invent a dollar estimate.
 
 ## GAME-310 acceptance state
 
-The browser integration, upstream baseline, four persona captures, evidence
-ledger, and normalized finding contract are complete. GAME-310 is not marked
-Done because the acceptance criteria require the pinned GameWorld-supported
-agent path, and that path is owner/provider-gated on this host.
+The browser integration, upstream baseline, four Codex baseline captures, four
+OpenCode/DeepSeek primary captures, evidence ledgers, and normalized finding
+contract are complete. GAME-310 is not marked Done because the OpenCode path
+is a lab-local adapter implementing the pinned contract rather than an
+upstream GameWorld adapter loaded through the pinned catalog path. This status
+preserves the distinction between successful lab evidence and the remaining
+supported-agent-path gate.
 
-Required next action: replenish the tested Gemini account's prepayment balance,
-provide another supported GameWorld provider account, or make a supported
-local model endpoint available. Then rerun the four personas with the same
-frozen SHA and compare those native-agent artifacts against this baseline. Do
-not advance GAME-311 until GAME-310 is closed.
+Required next action: decide whether this explicitly documented lab-local
+OpenCode adapter is acceptable for the GAME-310 supported-agent-path gate. If
+not, provide an approved upstream-supported provider or local endpoint and
+rerun the four personas with the same frozen SHA. Do not advance GAME-311
+until GAME-310 is closed.

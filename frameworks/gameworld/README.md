@@ -39,7 +39,13 @@ The baseline must be smoke-tested before attributing a failed Number Line Jumper
 
 GAME-310 should add only the smallest GameWorld-specific configuration or adapter needed to exercise the frozen Number Line Jumper build. Do not fork GameWorld or add GameWorld runtime code to the shipping game merely to force Codex or OpenCode into the framework's native agent path.
 
-Codex/Luna Max is the primary lab controller/reviewer. GameWorld may use one of its own supported gameplay-agent/provider paths for actual gameplay. The durable comparison is based on normalized evidence, not provider parity.
+Codex/Luna Max remains the evidence controller/reviewer. For the current
+user-directed provider campaign, OpenCode Go with DeepSeek V4.1 Flash supplies
+gameplay actions through a lab-local adapter that implements the pinned
+GameWorld `GeneralAgent` semantic-control contract. The adapter is not copied
+into the upstream checkout, and no GameWorld dependency is added to the
+shipping game. The durable comparison is based on normalized evidence, not
+provider parity.
 
 ## Expected raw evidence
 
@@ -59,12 +65,29 @@ runner's bounded fallback plans and independent Codex CLI screenshot reviews.
 This limitation is explicit in each manifest and does not count as proof that
 GameWorld's native provider path is available.
 
-The pinned native GameWorld provider path was not completed. The supplied
-Gemini credential initialized GameWorld's pinned `gemini_general` adapter, but
-the first `gemini-3-flash-preview` request was rejected with HTTP 402 because
-the account's prepayment credits were depleted. OpenCode Go access was also
-verified through bounded alternate reviews of an existing adversarial
-screenshot, including a follow-up request using the supplied alternate API
-key with `gpt-5.6-luna`. OpenCode is therefore available as an alternate lab
-reviewer, but it is not a native GameWorld provider and was not used for a
-second four-persona campaign.
+### OpenCode/DeepSeek native-contract runner
+
+`opencode_agent.py` and `opencode_number_line_jumper_runner.py` provide the
+smallest lab-local provider path needed for the current campaign. The runner
+reuses the pinned GameWorld browser manager, semantic action schema, and
+`ActionExecutor`, while sending Chat Completions requests to:
+
+```text
+https://opencode.ai/zen/go/v1/chat/completions
+model: deepseek-v4.1-flash
+reasoning_effort: max
+tool_choice: auto
+```
+
+DeepSeek thinking mode does not support required tool choice, so the runner
+fails closed when a response does not contain a valid semantic function call;
+it never substitutes Codex, Google, Anthropic, OpenAI, or a deterministic
+fallback action. The supplied OpenCode key is read only at process runtime.
+Manifests and interaction logs record provider metadata and parsed actions but
+not the credential or hidden reasoning text.
+
+The pinned Gemini credential was also tested through GameWorld's upstream
+`gemini_general` adapter and was rejected with HTTP 402 because its prepayment
+credits were depleted. That remains separate provider-gate evidence; the
+OpenCode campaign uses the lab-local adapter above and does not modify
+GameWorld upstream.
