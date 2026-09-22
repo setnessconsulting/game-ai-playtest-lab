@@ -1,0 +1,25 @@
+{
+  "finding_id": "GW-001",
+  "title": "Adversarial coaching hint names ambiguous reference points",
+  "framework": "gameworld",
+  "persona": "adversarial",
+  "category": "coaching-copy",
+  "observed_behavior": "After the adversarial run placed about 500 against target 173, the feedback says to decide whether the target is closer to the next hundred or thousand. That wording does not name concrete neighboring anchors around the target, so the suggested next step is ambiguous.",
+  "evidence": {
+    "artifact_ref": "runs/gameworld/gw-adversarial-20260921-final/screenshots/04-duplicate_land.png",
+    "summary": "The step-4 feedback frame visibly shows target 173, estimate 500, and the exact coaching line: Start at 500, then decide whether the target is closer to the next hundred or thousand."
+  },
+  "severity": "low",
+  "confidence": "high",
+  "recommended_improvement": "Use target-aware concrete anchors, such as telling the player to compare 173 with 100 and 200 after starting from 500.",
+  "expected_benefit": "Makes the feedback actionable for an adversarial or older learner without requiring them to infer which neighboring reference values are intended.",
+  "verification_approach": "Repeat adversarial runs for targets near several hundred boundaries and verify that the coaching copy names sensible adjacent anchors for each target.",
+  "game_revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+  "run_id": "gw-adversarial-20260921-final",
+  "metadata": {
+    "framework_revision": "3c26bdab436800fd61ef40543b64ca40d12c7e4a",
+    "reviewer": "Codex CLI screenshot review",
+    "review_scope": "One screenshot; no source-code or model-quality inference",
+    "native_gameworld_agent": false
+  }
+}
