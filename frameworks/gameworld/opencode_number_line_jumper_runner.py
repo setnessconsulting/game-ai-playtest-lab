@@ -31,14 +31,98 @@ DEFAULT_MODEL = "deepseek-v4.1-flash"
 DEFAULT_ENDPOINT = "https://opencode.ai/zen/go/v1/chat/completions"
 DEFAULT_REASONING_EFFORT = "max"
 DEFAULT_TOOL_CHOICE = "auto"
+DEFAULT_PROTOCOL = "chat_completions"
 GAME_SHA = "47a05480d7c32cee8f0991d6f6c0410be90d678e"
 GAMEWORLD_SHA = "3c26bdab436800fd61ef40543b64ca40d12c7e4a"
+MATH_DETECTIVE_RELEASE = "2026.09.21-playtest-enhancements.1"
+MATH_DETECTIVE_URL = (
+    "https://games.setnessconsulting.com/game-assets/math-detective/"
+    f"{MATH_DETECTIVE_RELEASE}/index.html"
+)
+BRIDGE_BUILDER_RELEASE = "0.1.0-qualification.12"
+BRIDGE_BUILDER_URL = (
+    "https://games.setnessconsulting.com/game-assets/bridge-builder/"
+    f"{BRIDGE_BUILDER_RELEASE}/index.html"
+)
 
 PERSONA_FILES = {
     "first-time": LAB_ROOT / "personas" / "first-time-player.md",
     "normal": LAB_ROOT / "personas" / "normal-player.md",
     "expert": LAB_ROOT / "personas" / "expert-player.md",
     "adversarial": LAB_ROOT / "personas" / "adversarial-player.md",
+}
+
+MATH_DETECTIVE_PERSONA_FILES = {
+    "first-time": LAB_ROOT / "personas" / "math-detective" / "first-time-player.md",
+    "normal": LAB_ROOT / "personas" / "math-detective" / "normal-player.md",
+    "expert": LAB_ROOT / "personas" / "math-detective" / "expert-player.md",
+    "adversarial": LAB_ROOT / "personas" / "math-detective" / "adversarial-player.md",
+}
+
+BRIDGE_BUILDER_PERSONA_FILES = {
+    "first-time": LAB_ROOT / "personas" / "bridge-builder" / "first-time-player.md",
+    "normal": LAB_ROOT / "personas" / "bridge-builder" / "normal-player.md",
+    "expert": LAB_ROOT / "personas" / "bridge-builder" / "expert-player.md",
+    "adversarial": LAB_ROOT / "personas" / "bridge-builder" / "adversarial-player.md",
+}
+
+GAME_PROFILES: dict[str, dict[str, Any]] = {
+    "number-line-jumper": {
+        "name": "Number Line Jumper",
+        "slug": "number-line-jumper",
+        "revision": GAME_SHA,
+        "revision_type": "source_git_sha",
+        "source_sha": GAME_SHA,
+        "url": "http://127.0.0.1:5173/",
+        "personas": PERSONA_FILES,
+        "rules": """\
+This is a frozen Number Line Jumper browser game. Use only what is visible in
+the current screenshot. The surface may begin at a level-selection screen and
+may require visible buttons before gameplay. During a round, inspect the
+number line, target, marker, prompts, and feedback before choosing the next
+single action. Do not inspect source code, the DOM, network traffic, hidden
+state, or browser accessibility metadata. Do not invent a defect from a
+missing visual detail. This is a bounded exploratory playtest, not a speedrun.
+""",
+    },
+    "math-detective": {
+        "name": "Math Detective",
+        "slug": "math-detective",
+        "revision": MATH_DETECTIVE_RELEASE,
+        "revision_type": "immutable_games_site_release",
+        "source_sha": None,
+        "url": MATH_DETECTIVE_URL,
+        "personas": MATH_DETECTIVE_PERSONA_FILES,
+        "rules": """\
+This is the immutable Math Detective playtest-enhancements release. Use only
+the game surface shown in the current screenshot. Read the visible case
+briefing and clues, inspect evidence stations through their on-screen controls,
+and use the displayed math and evidence to decide what happened. Distinguish
+observed facts from guesses; do not invent evidence or a defect. Do not inspect
+source code, the DOM, network traffic, hidden state, or browser metadata. This
+is a bounded exploratory playtest, not a speedrun.
+""",
+    },
+    "bridge-builder": {
+        "name": "Bridge Builder",
+        "slug": "bridge-builder",
+        "revision": BRIDGE_BUILDER_RELEASE,
+        "revision_type": "immutable_games_site_release",
+        "source_sha": None,
+        "url": BRIDGE_BUILDER_URL,
+        "personas": BRIDGE_BUILDER_PERSONA_FILES,
+        "rules": """\
+This is the immutable Bridge Builder qualification release. Use only what is
+visible on the game surface. For a comparable standard session, select Whole
+planks and enable Relaxed build (no clock) at setup; leave the numeral display
+at its default. Then start building, inspect the target gap and available
+planks, and use the visible controls to fill the span exactly before checking
+it. Observe the game's response and any next bridge. Do not inspect source code,
+the DOM, network traffic, hidden state, or browser metadata. Do not invent a
+defect from a missed click or an incorrect build. This is a bounded exploratory
+playtest, not a speedrun.
+""",
+    },
 }
 
 
@@ -94,12 +178,12 @@ ACTION_SPECS: list[dict[str, Any]] = [
     },
     {
         "id": "press_home",
-        "description": "Press Home once to move to the start of the number line.",
+        "description": "Press Home once when a visible game control indicates it.",
         "binding": {"action": "press_key", "key": "Home"},
     },
     {
         "id": "press_end",
-        "description": "Press End once to move to the end of the number line.",
+        "description": "Press End once when a visible game control indicates it.",
         "binding": {"action": "press_key", "key": "End"},
     },
     {
@@ -189,19 +273,14 @@ def _semantic_controls() -> list[SimpleNamespace]:
     ]
 
 
-def _build_system_prompt(persona_text: str, max_steps: int) -> str:
+def _build_system_prompt(
+    persona_text: str, max_steps: int, game_profile: str = "number-line-jumper"
+) -> str:
     from agents.harness.prompting import render_semantic_action_space, render_system_prompt
     from opencode_agent import OUTPUT_FORMAT, PROMPT_TEMPLATE
 
-    game_rules = """\
-This is a frozen Number Line Jumper browser game. Use only what is visible in
-the current screenshot. The surface may begin at a level-selection screen and
-may require visible buttons before gameplay. During a round, inspect the
-number line, target, marker, prompts, and feedback before choosing the next
-single action. Do not inspect source code, the DOM, network traffic, hidden
-state, or browser accessibility metadata. Do not invent a defect from a
-missing visual detail. This is a bounded exploratory playtest, not a speedrun.
-"""
+    profile = GAME_PROFILES[game_profile]
+    game_rules = str(profile["rules"])
     role_section = """\
 You are the selected playtest persona. Choose exactly one registered semantic
 control per step. Coordinates are viewport coordinates for the 1280x720 game
@@ -210,9 +289,10 @@ only after exercising enough of the visible flow or when the surface is
 blocked. Keep reasoning short and tied to visible evidence.
 """
     task_prompt = f"""\
-Play this frozen build from the perspective described below for at most
-{max_steps} model steps. Explore enough of the flow to reveal concrete player-
-visible behavior. Call `done` when the bounded session has sufficient evidence.
+Play this frozen {profile['name']} build from the perspective described below
+for at most {max_steps} model steps. Explore enough of the flow to reveal
+concrete player-visible behavior. Call `done` when the bounded session has
+sufficient evidence.
 
 Persona:
 {persona_text}
@@ -236,6 +316,9 @@ async def _capture(manager: Any, destination: Path, name: str) -> Path:
 
 
 async def _run(args: argparse.Namespace, api_key: str) -> int:
+    profile = GAME_PROFILES[args.game_profile]
+    game_url = args.game_url or str(profile["url"])
+    persona_files = profile["personas"]
     gameworld_root = Path(args.gameworld_root).resolve()
     _load_gameworld(gameworld_root)
 
@@ -268,25 +351,28 @@ async def _run(args: argparse.Namespace, api_key: str) -> int:
     temp_screenshots.mkdir(parents=True, exist_ok=True)
     events_path = run_dir / "events.jsonl"
 
-    persona_text = PERSONA_FILES[args.persona].read_text(encoding="utf-8")
+    persona_text = persona_files[args.persona].read_text(encoding="utf-8")
     session_id = f"gameworld-{args.persona}-{run_id}"
     config = OpenCodeGoConfig(
         model=args.model,
         api_key=api_key,
         endpoint=args.endpoint,
+        protocol=args.protocol,
         max_tokens=args.max_tokens,
         reasoning_effort=args.reasoning_effort,
         tool_choice=args.tool_choice,
         request_timeout=args.timeout,
         session_id=session_id,
-        system_prompt=_build_system_prompt(persona_text, args.max_steps),
+        system_prompt=_build_system_prompt(
+            persona_text, args.max_steps, game_profile=args.game_profile
+        ),
         enable_memory=False,
         log_session_id=session_id,
     )
     agent = OpenCodeGoAgent(config, semantic_controls_specs=ACTION_SPECS)
 
     browser_config = BrowserConfig(
-        game_url=args.game_url,
+        game_url=game_url,
         width=1280,
         height=720,
         headless=not args.headed,
@@ -388,18 +474,21 @@ async def _run(args: argparse.Namespace, api_key: str) -> int:
         "status": status,
         "framework": "gameworld",
         "framework_revision": GAMEWORLD_SHA,
-        "game": "number-line-jumper",
-        "game_revision": GAME_SHA,
-        "game_url": args.game_url,
+        "game": profile["slug"],
+        "game_revision": profile["revision"],
+        "game_revision_type": profile["revision_type"],
+        "game_source_sha": profile["source_sha"],
+        "game_url": game_url,
         "persona": args.persona,
         "runner": "gameworld-native-contract-opencode",
         "provider": {
             "name": "opencode-go",
             "endpoint": args.endpoint,
             "model": args.model,
-            "protocol": "chat_completions",
+            "protocol": args.protocol,
             "reasoning_effort": args.reasoning_effort,
             "tool_choice": args.tool_choice,
+            "output_token_limit": args.max_tokens,
             "credential_source": "runtime API-key file or OPENCODE_API_KEY environment variable",
             "credential_value_recorded": False,
         },
@@ -415,6 +504,14 @@ async def _run(args: argparse.Namespace, api_key: str) -> int:
             "reason": "GameWorld's pinned Python Playwright Chromium launch returned spawn UNKNOWN on Windows; system Chrome launched successfully.",
         },
         "max_steps": args.max_steps,
+        "retry_context": (
+            {
+                "retry_of": args.retry_of,
+                "reason": args.retry_reason,
+            }
+            if args.retry_of
+            else None
+        ),
         "stop_reason": stop_reason,
         "provider_error": provider_error,
         "events": events,
@@ -459,16 +556,28 @@ async def run(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--game-profile",
+        choices=sorted(GAME_PROFILES),
+        default="number-line-jumper",
+    )
     parser.add_argument("--persona", choices=sorted(PERSONA_FILES), required=True)
     parser.add_argument("--api-key-file")
     parser.add_argument("--gameworld-root", default=str(DEFAULT_GAMEWORLD_ROOT))
-    parser.add_argument("--game-url", default="http://127.0.0.1:5173/")
+    parser.add_argument("--game-url")
     parser.add_argument("--run-id")
+    parser.add_argument("--retry-of")
+    parser.add_argument("--retry-reason")
     parser.add_argument("--output-root", default=str(LAB_ROOT / "runs" / "gameworld"))
     parser.add_argument("--model", default=os.environ.get("OPENCODE_MODEL", DEFAULT_MODEL))
     parser.add_argument(
         "--endpoint",
         default=os.environ.get("OPENCODE_ENDPOINT", DEFAULT_ENDPOINT),
+    )
+    parser.add_argument(
+        "--protocol",
+        choices=("chat_completions", "responses"),
+        default=os.environ.get("OPENCODE_PROTOCOL", DEFAULT_PROTOCOL),
     )
     parser.add_argument("--max-steps", type=int, default=20)
     parser.add_argument("--max-tokens", type=int, default=8192)
