@@ -1,0 +1,153 @@
+# Owner-controlled exact-SHA fallback retained after Jenkins authority.
+name: Owner Actions fallback
+
+run-name: Owner Actions fallback (exact PR head)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: Open same-repository pull request number
+        type: string
+        required: true
+      expected_sha:
+        description: Exact 40-character pull request head SHA
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    name: verify (owner fallback)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Validate owner, repository, pull request, and exact head
+        id: validate
+        uses: actions/github-script@v7
+        env:
+          DISPATCH_ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          DISPATCH_REF: ${{ github.ref }}
+          REQUESTED_PR: ${{ inputs.pull_request_number }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        with:
+          script: |
+            const owner = 'setnessconsulting';
+            const repo = 'game-ai-playtest-lab';
+            const fullName = `${owner}/${repo}`;
+
+            if (process.env.DISPATCH_ACTOR !== owner || process.env.TRIGGERING_ACTOR !== owner) {
+              throw new Error('Only the setnessconsulting owner may dispatch or rerun this fallback.');
+            }
+            if (context.repo.owner !== owner || context.repo.repo !== repo) {
+              throw new Error(`Unexpected repository context: ${context.repo.owner}/${context.repo.repo}.`);
+            }
+
+            const rawNumber = process.env.REQUESTED_PR ?? '';
+            if (!/^[1-9][0-9]*$/.test(rawNumber)) {
+              throw new Error('pull_request_number must be a positive integer.');
+            }
+            const pullNumber = Number(rawNumber);
+            if (!Number.isSafeInteger(pullNumber)) {
+              throw new Error('pull_request_number is outside the supported integer range.');
+            }
+
+            const expectedSha = process.env.EXPECTED_SHA ?? '';
+            if (!/^[0-9a-f]{40}$/.test(expectedSha)) {
+              throw new Error('expected_sha must be a 40-character lowercase commit SHA.');
+            }
+
+            const { data: repository } = await github.rest.repos.get({ owner, repo });
+            if (repository.full_name !== fullName) {
+              throw new Error(`Unexpected repository identity: ${repository.full_name}.`);
+            }
+            if (process.env.DISPATCH_REF !== `refs/heads/${repository.default_branch}`) {
+              throw new Error('Dispatch this workflow from the default branch.');
+            }
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+            if (pullRequest.state !== 'open' || pullRequest.draft) {
+              throw new Error(`Pull request #${pullNumber} must be open and ready for review.`);
+            }
+            if (
+              pullRequest.head.repo?.full_name !== fullName ||
+              pullRequest.base.repo?.full_name !== fullName ||
+              pullRequest.head.repo?.id !== pullRequest.base.repo?.id
+            ) {
+              throw new Error(`Pull request #${pullNumber} must use a same-repository head and base.`);
+            }
+            if (pullRequest.base.ref !== repository.default_branch) {
+              throw new Error(`Pull request #${pullNumber} does not target the default branch.`);
+            }
+            if (pullRequest.head.sha !== expectedSha) {
+              throw new Error(`Pull request #${pullNumber} head does not match expected_sha.`);
+            }
+
+            core.setOutput('head_sha', pullRequest.head.sha);
+            core.info(`Validated pull request #${pullNumber} at ${pullRequest.head.sha}.`);
+
+      - name: Check out the validated pull request commit
+        uses: actions/checkout@v4
+        with:
+          repository: setnessconsulting/game-ai-playtest-lab
+          ref: ${{ steps.validate.outputs.head_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Confirm exact checkout
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ steps.validate.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          [[ "$actual_sha" == "$EXPECTED_SHA" ]] || {
+            echo "::error::Checked-out commit does not match the validated pull request head."
+            exit 1
+          }
+          printf 'Verified source commit: %s\n' "$actual_sha"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install test extras
+        run: python -m pip install --upgrade pip && python -m pip install '.[test]'
+
+      - name: Checkout pinned GameWorld
+        env:
+          GAMEWORLD_REPO: https://github.com/gameworld-project/GameWorld.git
+          GAMEWORLD_REV: 3c26bdab436800fd61ef40543b64ca40d12c7e4a
+        run: |
+          set -euo pipefail
+          mkdir -p .frameworks
+          git clone --filter=blob:none "$GAMEWORLD_REPO" .frameworks/gameworld-upstream
+          git -C .frameworks/gameworld-upstream checkout --detach "$GAMEWORLD_REV"
+
+      - name: Run the Jenkins-covered verification lane
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Confirm PR is still open at the verified head
+        uses: actions/github-script@v7
+        env:
+          REQUESTED_PR: ${{ inputs.pull_request_number }}
+          EXPECTED_SHA: ${{ steps.validate.outputs.head_sha }}
+        with:
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: 'setnessconsulting',
+              repo: 'game-ai-playtest-lab',
+              pull_number: Number(process.env.REQUESTED_PR),
+            });
+            if (pullRequest.state !== 'open' || pullRequest.head.sha !== process.env.EXPECTED_SHA) {
+              throw new Error('The pull request closed or advanced during fallback verification.');
+            }
