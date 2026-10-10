@@ -1,8 +1,23 @@
 # GAME-310 — GameWorld evaluation
 
-Status: OpenCode gameplay evidence captured; acceptance remains blocked pending
-the final determination that the lab-local provider adapter satisfies the
-pinned GameWorld supported-agent-path gate.
+Status: The bounded GameWorld evaluation satisfies the clarified
+supported-agent-path criterion. The OpenCode adapter is lab-local and uses
+the pinned GameWorld `GeneralAgent`, `BrowserGameManager`, and `ActionExecutor`
+interfaces; this does not claim upstream catalog registration or stock
+provider parity.
+
+## Supported-agent-path scope decision (2026-10-10)
+
+For this bounded evaluation, GameWorld's supported agent path means the pinned
+`GeneralAgent`, `BrowserGameManager`, and `ActionExecutor` interfaces. The
+existing minimal lab-local adapter satisfies this requirement; registering it
+in GameWorld's upstream catalog is not required.
+
+Any provider already configured and available at runtime may exercise these
+pinned interfaces. A funded Gemini account or local vLLM-compatible endpoint
+is not an acceptance prerequisite. Record the adapter and provider as
+integration and maintenance cost in the comparison. This scope does not claim
+a stock catalog-provider run or provider parity.
 
 ## Frozen inputs
 
@@ -105,14 +120,10 @@ not invent a dollar estimate.
 
 The browser integration, upstream baseline, four Codex baseline captures, four
 OpenCode/DeepSeek primary captures, evidence ledgers, and normalized finding
-contract are complete. GAME-310 is not marked Done because the OpenCode path
-is a lab-local adapter implementing the pinned contract rather than an
-upstream GameWorld adapter loaded through the pinned catalog path. This status
-preserves the distinction between successful lab evidence and the remaining
-supported-agent-path gate.
-
-Required next action: decide whether this explicitly documented lab-local
-OpenCode adapter is acceptable for the GAME-310 supported-agent-path gate. If
-not, provide an approved upstream-supported provider or local endpoint and
-rerun the four personas with the same frozen SHA. Do not advance GAME-311
-until GAME-310 is closed.
+contract are complete. Under the scope decision above, the documented
+lab-local adapter satisfies the supported-agent-path gate. No upstream catalog
+registration, additional provider access, provider purchase, or persona rerun
+is required. The adapter remains an integration and maintenance cost, and the
+evidence does not establish stock-provider parity. This evaluation therefore
+meets GAME-310's bounded acceptance criteria while preserving that limitation
+for the later comparison.
