@@ -1,0 +1,19 @@
+# GitHub Actions references are pinned to verified full commit SHAs
+# (AIPORT-307). Updates arrive as reviewable pull requests that change the
+# SHA and its version comment together; nothing here auto-merges.
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 5
+  commit-message:
+    prefix: ci(deps)
+  labels:
+  - dependencies
+  - github-actions
+  groups:
+    github-actions:
+      patterns:
+      - '*'
