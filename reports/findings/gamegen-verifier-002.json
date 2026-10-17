@@ -1,0 +1,33 @@
+{
+  "finding_id": "GGV-002",
+  "title": "Harness invokes its artifact validator with the wrong CLI, so validation never runs",
+  "framework": "gamegen-verifier",
+  "persona": "expert",
+  "category": "framework-integrity",
+  "observed_behavior": "At the end of every run the pinned harness calls the workspace's validate_artifacts.py with --repo-root, --game-name, --run-id, --test-mode, --expected-keypoint-count, and --json-output. That script defines only --run-root, --test-mode, and --expected-count, so the call exits on an argparse usage error before validating anything. Both runs therefore recorded 'validation_failed=True' and printed a validation_report.json path that was never created, while the run's own per-keypoint artifacts were in fact valid: invoked with the correct CLI, the pinned validator returned 'PASS: validated 5 keypoint artifact directories' for run ggv-nlj-5kp-1 and 'PASS: validated 1 keypoint artifact directories' for run ggv-nlj-5kp-2.",
+  "evidence": {
+    "artifact_ref": ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/logs/99_validate.log",
+    "summary": "The log contains only the usage error 'validate_artifacts.py: error: the following arguments are required: --run-root'. The run directory has no validation_report.json despite the harness printing its path, and the campaign log ends with 'Execution issues: worker_failures=1, missing_results=0, contract_failures=0, validation_failed=True'. The harness call site is harness/run_normal_eval.py around line 1687 and the script's argparse block (lines 54-57) defines --run-root/--test-mode/--expected-count.",
+    "supporting_refs": [
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-2/logs/99_validate.log",
+      ".frameworks/ggv-workspace/.codex/skills/keypoint-orchestrator/scripts/validate_artifacts.py"
+    ]
+  },
+  "severity": "medium",
+  "confidence": "high",
+  "recommended_improvement": "Reconcile the harness invocation with the installed validator: either pass --run-root/--expected-count (with the JSON output written by the caller) or ship a validator whose CLI matches the harness. Then make a non-zero validation result fail the run loudly instead of being folded into a non-fatal execution-issues summary.",
+  "expected_benefit": "Restores the framework's own artifact check, which currently cannot detect a genuinely malformed result, missing test_config.json, or a wrong keypoint count. It also removes a permanent false failure signal that an adopting team would otherwise have to learn to ignore.",
+  "verification_approach": "Run one keypoint campaign and confirm validation_report.json exists with a PASS; then delete a required artifact (for example test_config.json) from a keypoint directory and confirm the same step reports a validation failure and a non-zero outcome.",
+  "game_revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+  "run_id": "ggv-nlj-5kp-1",
+  "metadata": {
+    "framework_revision": "2604b6b7330ca93c2e9fcb1036daf8cdf660aade",
+    "reviewer": "expert lens over harness exit status and run report files",
+    "review_scope": "Harness call site, validator argparse, both runs' validation logs, and one manual validation per run",
+    "manual_validation_result": "PASS for both runs when invoked as --run-root ... --test-mode normal --expected-count <n>",
+    "affected_runs": [
+      "ggv-nlj-5kp-1",
+      "ggv-nlj-5kp-2"
+    ]
+  }
+}

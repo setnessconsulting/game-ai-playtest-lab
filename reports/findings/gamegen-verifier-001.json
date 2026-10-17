@@ -1,0 +1,32 @@
+{
+  "finding_id": "GGV-001",
+  "title": "A keypoint instruction that removes its own target control is recorded as a game FAIL",
+  "framework": "gamegen-verifier",
+  "persona": "first-time",
+  "category": "verdict-integrity",
+  "observed_behavior": "Keypoint 1 asked the worker to activate Start guided round and then press the warm-up Reveal example control. Starting the scored round removes that control, so the generated Playwright script clicked Start guided round (test_script.mjs line 58) and then timed out on Reveal example (line 67). The worker recorded a contract FAIL at confidence 88 with 'Reveal produced a visible response: false' and a tripped forbidden observation, and that FAIL became the run's headline result. The artifact carries no error_type and no marker that distinguishes 'the game cannot reveal an example' from 'the instruction's own sequence removed the control'. After the lab changed only the keypoint wording (do not start the scored round; use the warm-up reveal control), the same keypoint passed at confidence 97 on the first attempt with the same game revision, framework revision, backend, and model.",
+  "evidence": {
+    "artifact_ref": ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/keypoint_1/result.json",
+    "summary": "result.json is status FAIL, confidence 88, error_type null, with required_observations including 'Reveal produced a visible response: false' and forbidden_triggered true. The same directory's test_script.mjs shows the click on 'Start guided round' (line 58) followed by the timed-out locator for 'Reveal example' (line 67), and result.json reasoning preserves the Playwright timeout text. The corrected re-run in run ggv-nlj-5kp-2 recorded PASS at confidence 97 on the same pins.",
+    "supporting_refs": [
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/keypoint_1/test_script.mjs",
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/summary_report.md",
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-2/keypoint_1/result.json"
+    ]
+  },
+  "severity": "medium",
+  "confidence": "high",
+  "recommended_improvement": "Give the harness a way to express instruction-induced failure separately from game failure: a distinct error_type (for example keypoint_contract_ambiguity) or an INCONCLUSIVE status when the missing control was removed by the instruction's own earlier step, plus a documented procedure for correcting keypoint wording and re-running the keypoint under a new run id.",
+  "expected_benefit": "Prevents a false FAIL from reaching the headline report and being read as a game defect by whoever consumes the run. In this campaign the ambiguous instruction would otherwise have shipped as the evaluation's only failure, and the defect was only findable by reading the generated script.",
+  "verification_approach": "Re-run keypoint 1 with the corrected wording on a fresh run id against the same frozen game revision and confirm the FAIL to PASS transition reproduces; then inject an intentionally impossible instruction and confirm the harness surfaces it as an instruction/ambiguity outcome rather than a game FAIL.",
+  "game_revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+  "run_id": "ggv-nlj-5kp-1",
+  "metadata": {
+    "framework_revision": "2604b6b7330ca93c2e9fcb1036daf8cdf660aade",
+    "reviewer": "first-time-player lens over both runs' keypoint 1 artifacts",
+    "review_scope": "Generated test script, result.json contract review, and the corrected re-run; no source-code inference about the game",
+    "corrected_run_id": "ggv-nlj-5kp-2",
+    "reported_false_fail_confidence": 88,
+    "corrected_pass_confidence": 97
+  }
+}

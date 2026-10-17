@@ -64,6 +64,13 @@ class ExperimentContractTests(unittest.TestCase):
     def test_sample_finding_is_valid(self) -> None:
         validate_finding_file(repo_root() / "reports" / "examples" / "sample-finding.json")
 
+    def test_published_findings_are_valid(self) -> None:
+        findings = sorted((repo_root() / "reports" / "findings").glob("*.json"))
+        self.assertTrue(findings, "expected at least one normalized finding")
+        for path in findings:
+            with self.subTest(finding=path.name):
+                validate_finding_file(path)
+
     def test_missing_evidence_is_rejected(self) -> None:
         sample = json.loads(
             (repo_root() / "reports" / "examples" / "sample-finding.json").read_text()
