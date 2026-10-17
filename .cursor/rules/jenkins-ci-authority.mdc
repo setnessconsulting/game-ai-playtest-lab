@@ -1,0 +1,21 @@
+---
+description: CI authority and Jenkins verification policy for this repository
+alwaysApply: true
+---
+
+# CI and pull-request verification
+
+Repository: `setnessconsulting/game-ai-playtest-lab`
+Adoption state: `Jenkins authoritative`
+Authoritative PR check(s): `jenkins-pr-gate`
+Jenkins check(s): `jenkins-pr-gate`, published by the `setness-jenkins-ci` GitHub App (App ID `5043075`)
+Jenkins-supported triggers/lanes: pull request for open, non-draft, same-repository PRs authored by `setnessconsulting` or by verified same-repository Dependabot (bot identity and branch prefix, enforced by the trusted planner)
+Owner-controlled Actions fallback: `.github/workflows/jenkins-fallback.yml` (manual `workflow_dispatch`, owner-controlled, exact-SHA)
+Fork policy: `not qualified`; a maintainer-applied `jenkins-verify` label only after sandbox qualification
+Deployment boundary: `Jenkins performs no deployment for this repository`
+
+- Before authoring or reviewing a pull request, refresh the current PR head SHA, live check statuses and sources, and branch-protection requirements.
+- Jenkins is authoritative here. Require `jenkins-pr-gate` to be complete on the exact current PR head SHA and attributed to App ID `5043075`. Ignore stale results and results from a different source.
+- Do not start routine GitHub Actions verification. Use only the documented owner-controlled fallback when needed and say which SHA it tested.
+- Never run a pull-request-supplied Jenkinsfile or expose controller, App, production, or agent-state credentials to repository code.
+- Keep CI separate from release/deployment. Do not change deployment configuration as part of verification.
