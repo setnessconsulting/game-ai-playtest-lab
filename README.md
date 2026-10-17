@@ -123,7 +123,7 @@ Before diagnosing a Number Line Jumper integration failure, prove the pinned ups
 - [`frameworks/gameworld/README.md`](frameworks/gameworld/README.md)
 - [`frameworks/gamegen-verifier/README.md`](frameworks/gamegen-verifier/README.md)
 
-GAME-310 owns the real GameWorld integration and four persona runs. GAME-311 owns the GameGen-Verifier integration and five locked behavioral keypoints. This repository foundation intentionally stops before those full evaluations.
+GAME-310 owns the real GameWorld integration and four persona runs. GAME-311 owns the GameGen-Verifier integration and five locked behavioral keypoints. Both bounded evaluations and the GAME-312 comparison are complete; see [the recommendation](reports/recommendation.md). GameWorld is selected as a research path for separately scoped evaluations. This does not add a production dependency, release gate, schedule, or second-game evaluation.
 
 ## Evidence rules
 
