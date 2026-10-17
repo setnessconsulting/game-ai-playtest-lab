@@ -1,7 +1,7 @@
 # Completion Contract — game-ai-playtest-lab
 
 **Standard:** Portfolio Completion Standard v1
-**Date:** 2026-09-27
+**Date:** 2026-10-16
 
 ## Intended outcome
 
@@ -35,7 +35,7 @@ None. Local-only Python CLI.
 
 ## Stability evidence
 
-Foundation complete; full evaluations are GAME-310/311 scope.
+The foundation and bounded GAME-310/311 evaluations are complete. GAME-312 selects the minimal lab-local GameWorld path for separately scoped future evaluations. Its one low-severity game finding led to GAME-355 and is fixed on current Number Line Jumper main. GameGen-Verifier produced four framework findings and no confirmed game defect. This one-game experiment does not establish broad cross-game effectiveness.
 
 ## Acceptable limitations
 
@@ -44,5 +44,7 @@ playtesting, no dashboard, no model benchmarking, no production telemetry.
 
 ## Post-completion operating mode
 
-Maintenance. The lab foundation is delivered; future evaluations use the
-same harness.
+Maintenance. Keep the reports and minimal GameWorld adapter as research
+artifacts. Do not treat the lab as a production release gate or add scheduled
+playtesting. A later game evaluation needs its own scope and evidence; stop if
+its findings do not justify the upkeep.
