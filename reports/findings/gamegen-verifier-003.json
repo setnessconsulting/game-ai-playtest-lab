@@ -1,0 +1,38 @@
+{
+  "finding_id": "GGV-003",
+  "title": "Workers that finish their verdict never exit, stalling each run to the step timeout",
+  "framework": "gamegen-verifier",
+  "persona": "normal",
+  "category": "run-liveness",
+  "observed_behavior": "In both runs the final keypoint worker wrote its complete artifacts, printed its verdict and token usage, and then never exited. The harness waited out the full --step-timeout before terminating the process and writing reports. Run ggv-nlj-5kp-1: keypoint 4 wrote result.json at 17:30:40 and printed its PASS verdict plus 'tokens used 98,630' at 17:30:57, after which the log shows no further activity until '[TIMEOUT] process exceeded 1980s and was terminated' at 17:57:48 — about 27 idle minutes, taking the five-keypoint run to 58 minutes of wall clock. Run ggv-nlj-5kp-2: keypoint 1's artifacts were complete at 17:37:05, and the run ended on '[TIMEOUT] process exceeded 1680s' at 18:01:06 — about 24 idle minutes for a single keypoint. In both runs the accepted result survived (missing_results=0, contract_failures=0) but the execution-issues summary still reported worker_failures=1, so a complete run carries a worker-failure signal.",
+  "evidence": {
+    "artifact_ref": ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/logs/keypoint_4.log",
+    "summary": "The log ends with the keypoint 4 PASS verdict, 'tokens used / 98,630', and then '[TIMEOUT] process exceeded 1980s and was terminated' followed by 'Execution issues: worker_failures=1, missing_results=0, contract_failures=0, validation_failed=True'. The matching result.json is a valid PASS at confidence 96 written 27 minutes before the timeout, and summary_report.md credits keypoint 4 as passed. Run ggv-nlj-5kp-2 shows the same pattern with a 1680 s timeout.",
+    "supporting_refs": [
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/keypoint_4/result.json",
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/campaign.log",
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-2/campaign.log"
+    ]
+  },
+  "severity": "low",
+  "confidence": "high",
+  "recommended_improvement": "Treat a written, schema-valid result.json as worker completion: after a bounded post-verdict grace period, terminate the worker process tree instead of waiting for --step-timeout. Count a keypoint whose artifacts are complete and valid as complete rather than as a worker failure, and stop the server's descendant processes so the game port is released.",
+  "expected_benefit": "Removes roughly 24-27 minutes of dead wall clock per run at these settings (58 minutes to 31 for the five-keypoint run, 28 to 4 for a single keypoint) and eliminates a worker-failure signal on runs whose evidence is complete, which otherwise hides a real worker failure in the same counter.",
+  "verification_approach": "Run a campaign whose workers finish early and confirm the harness proceeds within the grace period, reports worker_failures=0 when all results are valid, and leaves no process listening on the game port. Then force a genuine worker failure (no result.json) and confirm it is still counted and surfaced.",
+  "game_revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+  "run_id": "ggv-nlj-5kp-1",
+  "metadata": {
+    "framework_revision": "2604b6b7330ca93c2e9fcb1036daf8cdf660aade",
+    "reviewer": "normal-persona operational lens over run logs and timings",
+    "review_scope": "Campaign logs, per-keypoint logs, result timestamps, and execution-issues lines for both runs",
+    "observed_idle_minutes": {
+      "ggv-nlj-5kp-1": 27,
+      "ggv-nlj-5kp-2": 24
+    },
+    "step_timeouts_seconds": {
+      "ggv-nlj-5kp-1": 1980,
+      "ggv-nlj-5kp-2": 1680
+    },
+    "results_were_accepted": true
+  }
+}

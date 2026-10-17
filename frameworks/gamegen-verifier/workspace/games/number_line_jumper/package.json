@@ -1,0 +1,10 @@
+{
+  "name": "nlj-frozen-lab-adapter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Lab-local dev-server shim that serves the frozen Number Line Jumper build at the revision pinned by GAME-308. It contains no game code.",
+  "scripts": {
+    "dev": "node dev-server.mjs"
+  }
+}

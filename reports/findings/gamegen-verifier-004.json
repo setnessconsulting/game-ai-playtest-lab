@@ -1,0 +1,37 @@
+{
+  "finding_id": "GGV-004",
+  "title": "Keypoint preconditions assume a state-injection seam that frozen external builds do not have",
+  "framework": "gamegen-verifier",
+  "persona": "adversarial",
+  "category": "input-contract",
+  "observed_behavior": "Four of the five keypoint workers recorded that the scenario could only be established through visible UI interaction because the frozen build exposes no state-injection hook (keypoint results state 'The frozen build has no state injection hook, so the cold-load scenario was established through normal UI interaction' and 'the scored scenario was established through the normal UI because this frozen build exposes no injection API'). The framework's skill set includes a generative-state-construction step that assumes preconditions can be injected, and worker preambles probe for such a hook before falling back. The consequence is not a wrong verdict but a coverage limit: near-threshold states can only be reached in real time, so keypoint 4 stopped at trial 4 of 10 and keypoint 5 had to let the 60-second clock run out to reach the round summary.",
+  "evidence": {
+    "artifact_ref": "frameworks/gamegen-verifier/workspace/games/number_line_jumper/state_injection_api.md",
+    "summary": "The lab's input contract records that no state injection API exists in the frozen build, that only read-only window access is available, and that workers must reach preconditions through the visible UI. The run artifacts confirm the workers followed that fallback: run ggv-nlj-5kp-1 keypoint_1 and keypoint_3 results both state the scenario was established through normal UI interaction because no injection API exists, and keypoint_4.log shows the worker searching the workspace for injection guidance before proceeding.",
+    "supporting_refs": [
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/keypoint_3/result.json",
+      ".frameworks/ggv-workspace/runs/number_line_jumper/ggv-nlj-5kp-1/logs/keypoint_4.log",
+      "frameworks/gamegen-verifier/workspace/games/number_line_jumper/data.md"
+    ]
+  },
+  "severity": "low",
+  "confidence": "high",
+  "recommended_improvement": "Document and support a no-injection verification mode: let a keypoint be marked as UI-reachable, state in the worker prompt that every precondition must be reached through the visible surface, and record the grounding (for example state_grounding: ui-only) in the result so a reader knows boundary states were not injected.",
+  "expected_benefit": "Removes a hidden assumption from the skill set, makes external frozen games first-class targets, and stops workers from spending turns looking for a hook that does not exist. It also makes the resulting coverage limit explicit instead of implicit in each worker's prose.",
+  "verification_approach": "Run the five keypoints under the documented no-injection guidance and confirm no worker searches for an injection hook, every result records UI-only grounding, and no keypoint is marked INCOMPLETE solely for a missing injection seam. For a boundary keypoint, confirm the run either reaches the state in real time or reports the bound explicitly.",
+  "game_revision": "47a05480d7c32cee8f0991d6f6c0410be90d678e",
+  "run_id": "ggv-nlj-5kp-1",
+  "metadata": {
+    "framework_revision": "2604b6b7330ca93c2e9fcb1036daf8cdf660aade",
+    "reviewer": "adversarial lens over all five artifacts and the input contract",
+    "review_scope": "Worker statements about the injection seam plus the lab's declared state-injection contract; no claim about game correctness",
+    "affected_keypoints": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "ui_only_grounding": true
+  }
+}
