@@ -10,6 +10,6 @@ The one-game scope, no-production-telemetry boundary, and maintenance limits are
 
 ## Verification and merge gate
 
-`.github/workflows/ci.yml` declares Python package installation and unit tests; the repository contract also names `python -m playtest_lab validate`, `smoke`, and `check-game`. These commands were not run for this status refresh, so no test result is claimed.
+`.github/workflows/ci.yml` declares Python package installation and unit tests; the repository contract also names `python -m playtest_lab validate`, `smoke`, and `check-game`. No local tests were run for this status refresh. Any automatic PR checks are tracked separately on the PR; this document makes no product qualification or release claim.
 
 Live `main` protection requires `jenkins-pr-gate`. The live catalog lists this repository as qualified in `project-jenkins-config` main `170bcaafd620c1f12031e6e4ce06432b772a519c`; `project-jenkins` main read for this snapshot is `a447971ad8fdcfdc40ea20881a8af3c827e81d47`. A PR still needs a successful check from App `5043075` on its exact current head.
