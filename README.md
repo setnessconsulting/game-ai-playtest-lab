@@ -42,6 +42,7 @@ The unit suite is larger than the runtime: it imports the pinned GameWorld check
 
 ```bash
 python -m pip install ".[test]"
+mkdir -p .frameworks
 git clone --filter=blob:none https://github.com/gameworld-project/GameWorld.git .frameworks/gameworld-upstream
 git -C .frameworks/gameworld-upstream checkout --detach 3c26bdab436800fd61ef40543b64ca40d12c7e4a
 ```
