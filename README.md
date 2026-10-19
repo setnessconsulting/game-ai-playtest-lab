@@ -36,10 +36,20 @@ Number Line Jumper's production architecture remains governed by GAME-3. The gam
 
 ## Local lab contract checks
 
-The lab utility has no third-party Python dependencies and requires Python 3.11+.
+The `playtest_lab` runtime package has no third-party Python dependencies and requires Python 3.11+.
+
+The unit suite is larger than the runtime: it imports the pinned GameWorld checkout and needs the optional `test` extra. Prepare a fresh clone the same way CI does (`.github/workflows/ci.yml`):
 
 ```bash
-python -m unittest discover -s tests -v
+python -m pip install ".[test]"
+git clone --filter=blob:none https://github.com/gameworld-project/GameWorld.git .frameworks/gameworld-upstream
+git -C .frameworks/gameworld-upstream checkout --detach 3c26bdab436800fd61ef40543b64ca40d12c7e4a
+```
+
+`.frameworks/` is gitignored, so that checkout stays local and is never committed.
+
+```bash
+python -m unittest discover -s tests -p "test_*.py" -v
 python -m playtest_lab validate
 python -m playtest_lab smoke
 ```
