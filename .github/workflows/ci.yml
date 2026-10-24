@@ -1,8 +1,10 @@
 name: CI
 
+# PR validation is the required `jenkins-pr-gate` check from the qualified
+# game-ai-playtest-lab-python312 Jenkins lane. This Actions workflow is
+# owner-dispatched verification only; the automatic push trigger was removed
+# in API-455 so branches and main do not repeat that validation.
 on:
-  push:
-    branches: [main, "codex/**"]
   workflow_dispatch:
 
 permissions:
