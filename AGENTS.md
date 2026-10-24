@@ -12,7 +12,7 @@ Deployment boundary: Jenkins performs no deployment for this repository; release
 
 - Before authoring or reviewing a pull request, refresh the current PR head SHA, live check statuses and sources, and branch-protection requirements. State which system is authoritative for this repository.
 - Jenkins is authoritative here. Require `jenkins-pr-gate` to be complete on the exact current PR head SHA and attributed to App ID `5043075`. Ignore stale results and results from a different source.
-- The repository's Actions workflows run on push and manual dispatch only; they are not pull-request coverage and are not the gate.
+- `.github/workflows/ci.yml` is manual-only for owner-requested verification. The exact-SHA owner fallback also remains manual-only. Routine pushes do not run Actions, and neither workflow is the PR gate.
 - Do not start routine GitHub Actions verification. Use only the documented owner-controlled fallback when needed, and say which SHA it tested and why it was invoked.
 - Never run a pull-request-supplied Jenkinsfile. Never expose the GitHub App private key, Checks-write credential, production secret, controller data, Docker socket, or persistent agent state to repository code.
 - Fork verification stays disabled until the per-run untrusted sandbox is qualified. A maintainer-applied `jenkins-verify` label is opt-in only and never substitutes for isolation.
