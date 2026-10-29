@@ -16,6 +16,12 @@ test = [
   "colorlog",
 ]
 
+[dependency-groups]
+build = ["setuptools>=68"]
+
+[tool.uv]
+required-version = "==0.13.5"
+
 [project.scripts]
 playtest-lab = "playtest_lab.cli:main"
 

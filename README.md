@@ -41,7 +41,8 @@ The `playtest_lab` runtime package has no third-party Python dependencies and re
 The unit suite is larger than the runtime: it imports the pinned GameWorld checkout and needs the optional `test` extra. Prepare a fresh clone the same way CI does (`.github/workflows/ci.yml`):
 
 ```bash
-python -m pip install ".[test]"
+uv sync --locked --extra test --group build --no-build-isolation --no-install-project
+uv pip install --python .venv --no-deps --no-build-isolation -e .
 mkdir -p .frameworks
 git clone --filter=blob:none https://github.com/gameworld-project/GameWorld.git .frameworks/gameworld-upstream
 git -C .frameworks/gameworld-upstream checkout --detach 3c26bdab436800fd61ef40543b64ca40d12c7e4a
@@ -50,28 +51,28 @@ git -C .frameworks/gameworld-upstream checkout --detach 3c26bdab436800fd61ef4054
 `.frameworks/` is gitignored, so that checkout stays local and is never committed.
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py" -v
-python -m playtest_lab validate
-python -m playtest_lab smoke
+uv run --locked --extra test --group build --no-sync python -m unittest discover -s tests -p "test_*.py" -v
+uv run --locked --extra test --group build --no-sync python -m playtest_lab validate
+uv run --locked --extra test --group build --no-sync python -m playtest_lab smoke
 ```
 
 `smoke` validates the frozen contract and reports whether `codex` and `opencode` are present on the local `PATH`. A missing CLI is reported but is not a contract failure unless explicitly required:
 
 ```bash
-python -m playtest_lab smoke --require-runner codex
-python -m playtest_lab smoke --require-runner opencode
+uv run --locked --extra test --group build --no-sync python -m playtest_lab smoke --require-runner codex
+uv run --locked --extra test --group build --no-sync python -m playtest_lab smoke --require-runner opencode
 ```
 
 After launching Number Line Jumper locally, verify the real browser target rather than relying on configuration alone:
 
 ```bash
-python -m playtest_lab check-game
+uv run --locked --extra test --group build --no-sync python -m playtest_lab check-game
 ```
 
 The GAME-309 local acceptance gate can be run as one command once Codex and the frozen game are available:
 
 ```bash
-python -m playtest_lab smoke --require-runner codex --check-game
+uv run --locked --extra test --group build --no-sync python -m playtest_lab smoke --require-runner codex --check-game
 ```
 
 ## Create a normalized run plan
@@ -79,7 +80,7 @@ python -m playtest_lab smoke --require-runner codex --check-game
 The planner does **not** invoke a framework or model. It produces a deterministic run envelope that records the frozen game/framework revisions and chosen persona/runner.
 
 ```bash
-python -m playtest_lab plan \
+uv run --locked --extra test --group build --no-sync python -m playtest_lab plan \
   --framework gameworld \
   --persona first-time
 ```
@@ -87,7 +88,7 @@ python -m playtest_lab plan \
 OpenCode model selection is runtime-only:
 
 ```bash
-python -m playtest_lab plan \
+uv run --locked --extra test --group build --no-sync python -m playtest_lab plan \
   --framework gamegen-verifier \
   --persona adversarial \
   --runner opencode \
@@ -97,7 +98,7 @@ python -m playtest_lab plan \
 Persist a plan under the gitignored run tree when executing an experiment:
 
 ```bash
-python -m playtest_lab plan \
+uv run --locked --extra test --group build --no-sync python -m playtest_lab plan \
   --framework gameworld \
   --persona normal \
   --output runs/gameworld/normal/plan.json
@@ -106,7 +107,7 @@ python -m playtest_lab plan \
 ## Validate a normalized finding
 
 ```bash
-python -m playtest_lab validate-finding reports/examples/sample-finding.json
+uv run --locked --extra test --group build --no-sync python -m playtest_lab validate-finding reports/examples/sample-finding.json
 ```
 
 The sample is explicitly synthetic. It proves the reporting contract and must never be counted as a real Number Line Jumper finding.
