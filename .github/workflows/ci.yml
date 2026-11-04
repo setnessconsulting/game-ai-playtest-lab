@@ -1,36 +1,72 @@
 name: CI
 
-# PR validation is the required `jenkins-pr-gate` check from the qualified
-# game-ai-playtest-lab-python312 Jenkins lane. This Actions workflow is
-# owner-dispatched verification only; the automatic push trigger was removed
-# in API-455 so branches and main do not repeat that validation.
+# LOW-risk pull requests use this lightweight GitHub Actions check. The
+# owner-dispatched workflow remains available for extended verification.
 on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
   workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Reject fork pull requests before checkout
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::error::Fork pull request verification is not enabled for this repository."
+          exit 1
+
+      - name: Classify docs-only changes
+        id: changes
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+            const docExtension = /\.(?:md|markdown|mdx|rst|adoc)$/i;
+            const docName = /(?:^|\/)(?:readme|license|notice|changelog|contributing|code_of_conduct|security|support)(?:\.(?:md|markdown|mdx|rst|adoc|txt))?$/i;
+            const docsOnly = files.length > 0 && files.length < 3000 &&
+              files.every(({ filename }) => docExtension.test(filename) || docName.test(filename));
+            core.setOutput("docs_only", String(docsOnly));
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.changes.outputs.docs_only != 'true'
 
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        if: steps.changes.outputs.docs_only != 'true'
         with:
           python-version: "3.12"
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        if: steps.changes.outputs.docs_only != 'true'
         with:
           version: 0.13.5
           enable-cache: false
 
       - name: Install locked test and build dependencies
+        if: steps.changes.outputs.docs_only != 'true'
         run: |
           uv sync --locked --extra test --group build --no-build-isolation --no-install-project
           uv pip install --python .venv --no-deps --no-build-isolation -e .
 
       - name: Checkout pinned GameWorld
+        if: steps.changes.outputs.docs_only != 'true'
         env:
           GAMEWORLD_REPO: https://github.com/gameworld-project/GameWorld.git
           GAMEWORLD_REV: 3c26bdab436800fd61ef40543b64ca40d12c7e4a
@@ -40,4 +76,5 @@ jobs:
           git -C .frameworks/gameworld-upstream checkout --detach "$GAMEWORLD_REV"
 
       - name: Unit tests
+        if: steps.changes.outputs.docs_only != 'true'
         run: uv run --locked --extra test --group build --no-sync python -m unittest discover -s tests -p "test_*.py" -v
