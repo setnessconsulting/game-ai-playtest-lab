@@ -1,0 +1,7 @@
+schema_version: "1"
+behaviors:
+  - behavior_id: playtest-lab.offline-cli-contract
+    description: The CLI validates the frozen experiment contract and sample finding, then reports runner discovery without invoking a runner or contacting a game target.
+    criticality: critical
+    required_evidence: [static, deterministic, contract]
+critical_journeys: []
