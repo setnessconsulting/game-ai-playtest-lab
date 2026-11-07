@@ -23,15 +23,26 @@ checker, report generation.
 ## Automated verification
 
 ```
-python -m unittest discover -s tests -v
-python -m playtest_lab validate
-python -m playtest_lab smoke
-python -m playtest_lab check-game
+uv run --locked --extra test --group build --no-sync python -m unittest discover -s tests -p "test_*.py" -v
+uv run --locked --extra test --group build --no-sync python -m playtest_lab validate
+uv run --locked --extra test --group build --no-sync python -m playtest_lab smoke
+uv run --locked --extra test --group build --no-sync python -m playtest_lab check-game
 ```
+
+## Manual verification
+
+There is no separate human gameplay or release sign-off in the lab's
+recurring acceptance checks. An operator must start the frozen Number Line
+Jumper build before `check-game` can verify its HTTP target; the launch steps
+are in `docs/EXPERIMENT.md`. GAME-310 and GAME-311 are completed research
+campaigns, and GAME-312 is their comparison; these are recorded experiment
+evidence, not recurring manual acceptance checks.
 
 ## External/runtime checks
 
-None. Local-only Python CLI.
+No provider or deployed lab service. The optional `check-game` command is a
+local runtime check against the frozen Number Line Jumper build after an
+operator launches it as documented in `docs/EXPERIMENT.md`.
 
 ## Stability evidence
 
