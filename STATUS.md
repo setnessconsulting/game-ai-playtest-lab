@@ -2,7 +2,7 @@
 
 **Source snapshot:** live `main` at `8b50f8c2645b9016dde2239d372f1f82bee44fbc`, checked 2026-11-06 (America/Los_Angeles).
 
-**Assessment standard:** Portfolio Completion Standard v1.1 scoring. The existing completion contract was defined on 2026-10-16 under v1. Project Meta `main` (`74c969d4687dd7f63350207d0047ae84bf0c8b58`) still records this repository as `defined`, `portfolio-v1`, and `secondary`; it does not record a finalized delivery state or finalization entry.
+**Assessment standard:** Portfolio Completion Standard v1. The owner decided on 2026-11-06 to retain the completed pre-cutoff milestone under its existing v1 contract. Project Meta `main` (`74c969d4687dd7f63350207d0047ae84bf0c8b58`) records this repository as `defined`, `portfolio-v1`, and `secondary`; it does not record a finalized delivery state or finalization entry.
 
 ## Scope and outcome
 
@@ -35,23 +35,15 @@ Assessment against the source snapshot above, with this closeout documentation c
 | 4. Reproducible build and verification | Pass | The README and CI workflow document the locked environment, pinned GameWorld checkout, and repeatable test commands. |
 | 5. Operational truth | Pass | This status replaces the 2026-10-17 snapshot, distinguishes the GAME-308 umbrella from its completed GAME-310/311 evaluations and GAME-312 comparison, and matches the maintenance decision in `DONE.md`. |
 | 6. Failure and recovery | Pass | The docs pin external revisions, require proving each framework's own baseline before diagnosing integration failures, and define which generated artifacts stay local. |
-| 7. Completion-blocking defects | Partial | The retained GAME-355 finding is Done; GameGen-Verifier limitations are documented and excluded by the comparison decision; no lab-labeled Jira issue remains open. A current high-severity AI-Slop sweep or scan result tied to this repository revision was not found. |
-| 8. Stability and E2E baseline | Partial | GAME-310/311 and GAME-312 provide completed research evidence, but the contract does not define a separate stability observation criterion or a designated lab-repository baseline SHA and approved scenario inventory. Gate 8 applicability and tier need the owner decision below. |
+| 7. Completion-blocking defects | Pass | The retained GAME-355 finding is Done; GameGen-Verifier reliability limits are documented and excluded by the comparison decision; no lab-labeled Jira issue remains open. Under the selected v1 contract, the later v1.1 AI-Slop scan rule is not a separate requirement. |
+| 8. Stability has evidence | Pass | The v1 contract defines stability for this research lab as completing both bounded evaluations and their comparison. GAME-310/311/312 are Done; `reports/recommendation.md` records the real GameWorld and GameGen-Verifier campaigns and their limitations. This is campaign evidence, not a claim of broad cross-game or production reliability. |
 | 9. Post-completion mode | Pass | `DONE.md` sets maintenance as the post-completion mode and rules out an open-ended platform expansion. |
 
-**Score:** 7 pass, 2 partial, 0 fail = **89%** under v1.1 scoring. This secondary repository meets the seven-pass operational health threshold, but it is not near-complete or finalized. Finalization requires all nine gates to pass and an owner decision.
+**Gate result:** 9 of 9 gates pass under the selected v1 contract. This evidence assessment does not itself declare the repository finalized; no finalization date or Project Meta metadata change is recorded.
 
-### Gate 8 applicability and owner proposal
+### Gate 8 standard decision
 
-The v1.1 tiered baseline clause applies to milestones whose designated baseline SHA is recorded on or after 2026-11-04. The existing contract predates that cutoff and records the frozen **game input** SHA `47a05480d7c32cee8f0991d6f6c0410be90d678e` (frozen 2026-09-20), not a baseline SHA for this lab repository. The current records therefore do not establish whether the v1.1 one-time baseline clause applies to this existing milestone. Do not treat the game-input SHA as the lab baseline or infer an approval from the completed Jira evaluations.
-
-If the owner chooses to establish a new v1.1 baseline, the evidence supports these **unapproved candidates**:
-
-- Candidate lab baseline: `8b50f8c2645b9016dde2239d372f1f82bee44fbc`, the reviewed `main` source snapshot for this closeout.
-- Candidate tier: **Tier B**, because Project Meta classifies the repository as secondary and its contract describes a local-only CLI with no deployed runtime.
-- Candidate inventory basis: the documented locked unit suite, `validate`, `smoke`, a valid plan-to-finding workflow, and `check-game` against the frozen game. Include named rejection cases already represented by tests (invalid SHA, missing evidence, and non-HTTP game URL), then approve entry/exit criteria, safe fixtures, and cleanup checks.
-
-The owner must decide whether to retain the pre-cutoff v1 milestone or reopen it with a new v1.1 baseline. If reopened, the owner must approve the exact baseline SHA, inventory version, tier, and stability evidence. Tier B would additionally require exact-head GitHub Actions CI plus a local run of the approved scenario inventory. No baseline Actions run or new playtest campaign was started for this closeout.
+On 2026-11-06, the owner chose to retain this completed October milestone under its existing v1 contract. The v1.1 tiered exact-SHA baseline clause is not being introduced by reopening this milestone. The frozen Number Line Jumper SHA `47a05480d7c32cee8f0991d6f6c0410be90d678e` remains the experiment's **game input**, not a lab-repository baseline. No new lab baseline, tier, or scenario inventory is asserted. No baseline run or new playtest campaign was started for this closeout.
 
 ## CI and merge authority
 

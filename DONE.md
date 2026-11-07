@@ -40,7 +40,9 @@ evidence, not recurring manual acceptance checks.
 
 ## External/runtime checks
 
-None. Local-only Python CLI.
+No provider or deployed lab service. The optional `check-game` command is a
+local runtime check against the frozen Number Line Jumper build after an
+operator launches it as documented in `docs/EXPERIMENT.md`.
 
 ## Stability evidence
 
